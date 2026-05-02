@@ -10,6 +10,7 @@ const els = {
   startCameraBtn: document.querySelector("#startCameraBtn"),
   startRaceBtn: document.querySelector("#startRaceBtn"),
   finishLine: document.querySelector(".finish-line"),
+  countdownBurst: document.querySelector("#countdownBurst"),
   finishBurst: document.querySelector("#finishBurst"),
   finishText: document.querySelector("#finishText"),
   playerRunner: document.querySelector("#playerRunner"),
@@ -27,6 +28,7 @@ const state = {
   detector: null,
   cameraReady: false,
   raceActive: false,
+  countdownActive: false,
   raceStart: 0,
   lastFrame: 0,
   playerDistance: 0,
@@ -113,22 +115,19 @@ async function loadPoseDetector() {
 }
 
 function startRace() {
-  if (!state.cameraReady) return;
+  if (!state.cameraReady || state.countdownActive) return;
 
   resetRace();
   hideFinishBurst();
-  state.raceActive = true;
-  state.raceStart = performance.now();
-  state.lastFrame = state.raceStart;
+  runCountdown();
   els.startRaceBtn.disabled = true;
   els.result.className = "result";
-  els.result.textContent = "比赛开始！面对摄像头原地快跑，抬膝和摆臂都会提高速度。";
-  els.playerRunner.classList.remove("paused");
-  els.aiRunner.classList.remove("paused");
+  els.result.textContent = "准备！倒计时结束后开始原地快跑。";
 }
 
 function resetRace() {
   state.raceActive = false;
+  state.countdownActive = false;
   state.playerDistance = 0;
   state.aiDistance = 0;
   state.playerSpeed = 0;
@@ -136,6 +135,7 @@ function resetRace() {
   state.lastKneeSignal = 0;
   state.lastStepAt = 0;
   els.timeLeft.textContent = GAME_SECONDS.toFixed(1);
+  hideCountdown();
   hideFinishBurst();
   renderScore();
   renderRunners();
@@ -169,6 +169,51 @@ function tick(now) {
   renderScore();
   renderRunners();
   requestAnimationFrame(tick);
+}
+
+function runCountdown() {
+  state.countdownActive = true;
+  const sequence = ["3", "2", "1"];
+  let index = 0;
+
+  showCountdown(sequence[index]);
+  const timer = window.setInterval(() => {
+    index += 1;
+
+    if (index < sequence.length) {
+      showCountdown(sequence[index]);
+      return;
+    }
+
+    window.clearInterval(timer);
+    hideCountdown();
+    beginRace();
+  }, 1000);
+}
+
+function beginRace() {
+  if (!state.cameraReady) return;
+
+  state.countdownActive = false;
+  state.raceActive = true;
+  state.raceStart = performance.now();
+  state.lastFrame = state.raceStart;
+  els.result.textContent = "比赛开始！面对摄像头原地快跑，抬膝和摆臂都会提高速度。";
+  els.playerRunner.classList.remove("paused");
+  els.aiRunner.classList.remove("paused");
+}
+
+function showCountdown(value) {
+  els.countdownBurst.textContent = value;
+  els.countdownBurst.className = "countdown-burst";
+  void els.countdownBurst.offsetWidth;
+  els.countdownBurst.className = "countdown-burst show";
+  els.countdownBurst.setAttribute("aria-hidden", "false");
+}
+
+function hideCountdown() {
+  els.countdownBurst.className = "countdown-burst";
+  els.countdownBurst.setAttribute("aria-hidden", "true");
 }
 
 function estimatePose(now) {
