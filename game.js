@@ -9,6 +9,7 @@ const els = {
   cameraStatus: document.querySelector("#cameraStatus"),
   startCameraBtn: document.querySelector("#startCameraBtn"),
   startRaceBtn: document.querySelector("#startRaceBtn"),
+  finishLine: document.querySelector(".finish-line"),
   playerRunner: document.querySelector("#playerRunner"),
   aiRunner: document.querySelector("#aiRunner"),
   timeLeft: document.querySelector("#timeLeft"),
@@ -258,8 +259,10 @@ function renderScore() {
 function renderRunners() {
   const playerProgress = Math.min(state.playerDistance / TRACK_METERS, 1);
   const aiProgress = Math.min(state.aiDistance / TRACK_METERS, 1);
-  els.playerRunner.style.transform = `translateX(calc(${playerProgress} * (82vw - 120px))) rotate(-8deg)`;
-  els.aiRunner.style.transform = `translateX(calc(${aiProgress} * (82vw - 120px))) rotate(-8deg)`;
+  const playerX = getRunnerTranslateX(els.playerRunner, playerProgress);
+  const aiX = getRunnerTranslateX(els.aiRunner, aiProgress);
+  els.playerRunner.style.transform = `translate3d(${playerX}px, 0, 0) rotate(-8deg)`;
+  els.aiRunner.style.transform = `translate3d(${aiX}px, 0, 0) rotate(-8deg)`;
 
   const playerStride = Math.max(160, 520 - state.playerSpeed * 34);
   const aiStride = Math.max(170, 530 - state.aiSpeed * 32);
@@ -271,6 +274,16 @@ function renderRunners() {
   els.aiRunner.querySelectorAll(".arm, .leg").forEach((part) => {
     part.style.animationDuration = `${aiStride}ms`;
   });
+}
+
+function getRunnerTranslateX(runner, progress) {
+  const finishX = els.finishLine.offsetLeft;
+  const startX = runner.offsetLeft;
+  const runnerWidth = runner.offsetWidth;
+  const finishPadding = Math.max(6, els.finishLine.offsetWidth * 0.5);
+  const finishTranslateX = Math.max(0, finishX - startX - runnerWidth + finishPadding);
+
+  return Math.round(finishTranslateX * progress);
 }
 
 function drawOverlay(landmarks) {
