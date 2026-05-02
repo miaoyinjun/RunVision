@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>极速开跑</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="arena">
+      <section class="race-panel" aria-label="跑步比赛">
+        <div class="track-header">
+          <div>
+            <p class="kicker">Camera Sprint Duel</p>
+            <h1>极速开跑</h1>
+          </div>
+          <div class="clock" aria-live="polite">
+            <span id="timeLeft">30.0</span>
+            <small>秒</small>
+          </div>
+        </div>
+
+        <div class="stadium" aria-label="赛道">
+          <div class="finish-line" aria-hidden="true"></div>
+          <div class="lane lane-ai">
+            <div class="lane-label">电脑</div>
+            <div class="runner ai-runner" id="aiRunner" aria-hidden="true">
+              <span class="head"></span>
+              <span class="body"></span>
+              <span class="arm arm-a"></span>
+              <span class="arm arm-b"></span>
+              <span class="leg leg-a"></span>
+              <span class="leg leg-b"></span>
+            </div>
+          </div>
+          <div class="lane lane-player">
+            <div class="lane-label">你</div>
+            <div class="runner player-runner" id="playerRunner" aria-hidden="true">
+              <span class="head"></span>
+              <span class="body"></span>
+              <span class="arm arm-a"></span>
+              <span class="arm arm-b"></span>
+              <span class="leg leg-a"></span>
+              <span class="leg leg-b"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="scoreboard" aria-label="比赛数据">
+          <div>
+            <span id="playerMeters">0</span>
+            <small>玩家米数</small>
+          </div>
+          <div>
+            <span id="cadence">0</span>
+            <small>步频</small>
+          </div>
+          <div>
+            <span id="aiMeters">0</span>
+            <small>电脑米数</small>
+          </div>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="摄像头控制">
+        <div class="camera-shell">
+          <video id="camera" playsinline muted></video>
+          <canvas id="overlay"></canvas>
+          <div class="camera-status" id="cameraStatus">等待摄像头</div>
+        </div>
+
+        <div class="action-row">
+          <button class="primary" id="startCameraBtn" type="button">开启摄像头</button>
+          <button class="secondary" id="startRaceBtn" type="button" disabled>开始比赛</button>
+        </div>
+
+        <div class="result" id="result" role="status" aria-live="polite">
+          站到镜头前，开启摄像头后原地跑。步伐越明显，游戏里的人跑得越快。
+        </div>
+
+        <div class="tuning">
+          <label for="difficulty">电脑速度</label>
+          <input id="difficulty" type="range" min="4" max="9" step="0.5" value="6.5" />
+          <span id="difficultyValue">6.5 m/s</span>
+        </div>
+      </aside>
+    </main>
+
+    <script type="module" src="./game.js"></script>
+  </body>
+</html>

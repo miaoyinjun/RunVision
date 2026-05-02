@@ -1,0 +1,430 @@
+:root {
+  --ink: #161712;
+  --paper: #f7f0dd;
+  --track: #e84a2a;
+  --track-dark: #b7261c;
+  --electric: #15d2c0;
+  --sun: #f6c542;
+  --grass: #126b45;
+  --white: #fff9e8;
+  --shadow: rgba(22, 23, 18, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  font-family: "Noto Sans SC", sans-serif;
+  background:
+    linear-gradient(90deg, rgba(22, 23, 18, 0.08) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(0deg, rgba(22, 23, 18, 0.06) 1px, transparent 1px) 0 0 / 28px 28px,
+    radial-gradient(circle at 20% 20%, #fff7bd 0 12%, transparent 28%),
+    var(--paper);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.arena {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.55fr);
+  gap: 18px;
+  width: min(1320px, calc(100% - 32px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 16px 0;
+}
+
+.race-panel,
+.control-panel {
+  border: 3px solid var(--ink);
+  background: var(--white);
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.race-panel {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(16px, 2vw, 28px);
+  overflow: hidden;
+}
+
+.track-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.kicker {
+  margin: 0 0 4px;
+  font-family: Rajdhani, sans-serif;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--track-dark);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(48px, 8vw, 112px);
+  font-weight: 900;
+  line-height: 0.9;
+}
+
+.clock {
+  min-width: 132px;
+  padding: 8px 12px;
+  border: 3px solid var(--ink);
+  background: var(--sun);
+  text-align: center;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.clock span {
+  display: block;
+  font-family: Rajdhani, sans-serif;
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.clock small,
+.scoreboard small,
+.lane-label,
+.tuning label,
+.tuning span {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.stadium {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  flex: 1;
+  min-height: 430px;
+  border: 4px solid var(--ink);
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.16) 0 18px, transparent 18px 54px),
+    linear-gradient(180deg, var(--track), #d63d28);
+}
+
+.stadium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0 84%, rgba(22, 23, 18, 0.08) 84% 100%);
+  pointer-events: none;
+}
+
+.finish-line {
+  position: absolute;
+  top: 0;
+  right: 9%;
+  width: 18px;
+  height: 100%;
+  background:
+    repeating-conic-gradient(var(--ink) 0 25%, var(--white) 0 50%) 0 0 / 18px 18px;
+  z-index: 2;
+}
+
+.lane {
+  position: relative;
+  border-top: 3px dashed rgba(255, 249, 232, 0.72);
+}
+
+.lane:first-of-type {
+  border-top: 0;
+}
+
+.lane-label {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 3;
+  padding: 5px 10px;
+  border: 2px solid var(--ink);
+  background: var(--white);
+}
+
+.runner {
+  --lean: -8deg;
+  position: absolute;
+  left: 4%;
+  bottom: 31%;
+  width: 72px;
+  height: 106px;
+  transform: translateX(0) rotate(var(--lean));
+  transform-origin: 50% 84%;
+  transition: transform 120ms linear;
+  z-index: 4;
+}
+
+.runner span {
+  position: absolute;
+  display: block;
+  background: var(--ink);
+}
+
+.runner .head {
+  top: 0;
+  left: 25px;
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: var(--sun);
+}
+
+.runner .body {
+  top: 30px;
+  left: 35px;
+  width: 12px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--electric);
+}
+
+.runner .arm,
+.runner .leg {
+  width: 10px;
+  border-radius: 999px;
+  transform-origin: 50% 0;
+}
+
+.runner .arm {
+  top: 36px;
+  left: 37px;
+  height: 36px;
+}
+
+.runner .leg {
+  top: 66px;
+  left: 37px;
+  height: 44px;
+}
+
+.runner .arm-a,
+.runner .leg-b {
+  animation: stride-a 340ms infinite linear;
+}
+
+.runner .arm-b,
+.runner .leg-a {
+  animation: stride-b 340ms infinite linear;
+}
+
+.player-runner .body {
+  background: var(--sun);
+}
+
+.player-runner .head {
+  background: var(--electric);
+}
+
+.runner.paused span {
+  animation-play-state: paused;
+}
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.scoreboard div {
+  min-width: 0;
+  padding: 12px;
+  border: 3px solid var(--ink);
+  background: var(--grass);
+  color: var(--white);
+}
+
+.scoreboard span {
+  display: block;
+  font-family: Rajdhani, sans-serif;
+  font-size: clamp(34px, 4vw, 54px);
+  font-weight: 700;
+  line-height: 0.9;
+}
+
+.control-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+}
+
+.camera-shell {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 3px solid var(--ink);
+  overflow: hidden;
+  background: #201f1a;
+}
+
+video,
+canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.camera-status {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  max-width: calc(100% - 20px);
+  padding: 6px 9px;
+  border: 2px solid var(--ink);
+  background: var(--sun);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  min-height: 52px;
+  border: 3px solid var(--ink);
+  cursor: pointer;
+  font-weight: 900;
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.primary {
+  background: var(--electric);
+}
+
+.secondary {
+  background: var(--sun);
+}
+
+.result {
+  min-height: 96px;
+  padding: 14px;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  font-size: clamp(15px, 1.5vw, 18px);
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.result.win {
+  background: var(--electric);
+}
+
+.result.lose {
+  background: var(--track);
+  color: var(--white);
+}
+
+.tuning {
+  display: grid;
+  grid-template-columns: 72px 1fr 72px;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border: 3px solid var(--ink);
+  background: var(--white);
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--track-dark);
+}
+
+@keyframes stride-a {
+  0%,
+  100% {
+    transform: rotate(48deg);
+  }
+  50% {
+    transform: rotate(-58deg);
+  }
+}
+
+@keyframes stride-b {
+  0%,
+  100% {
+    transform: rotate(-52deg);
+  }
+  50% {
+    transform: rotate(56deg);
+  }
+}
+
+@media (max-width: 900px) {
+  .arena {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .stadium {
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 560px) {
+  .arena {
+    width: calc(100% - 20px);
+    padding: 10px 0;
+  }
+
+  .track-header,
+  .action-row,
+  .scoreboard {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .clock {
+    width: 100%;
+  }
+
+  .stadium {
+    min-height: 300px;
+  }
+
+  .runner {
+    width: 56px;
+    height: 86px;
+  }
+
+  .tuning {
+    grid-template-columns: 1fr;
+  }
+}
