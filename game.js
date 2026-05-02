@@ -65,14 +65,11 @@ async function startCamera() {
   setStatus("正在请求摄像头...");
 
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        width: { ideal: 960 },
-        height: { ideal: 720 },
-        facingMode: "user",
-      },
-      audio: false,
-    });
+    if (!navigator.mediaDevices?.getUserMedia) {
+      throw new Error("当前页面不能调用摄像头，请用 http://localhost 打开，不要直接双击 index.html 或使用局域网 IP。");
+    }
+
+    const stream = await requestCameraStream();
 
     els.video.srcObject = stream;
     await els.video.play();
@@ -85,8 +82,46 @@ async function startCamera() {
   } catch (error) {
     els.startCameraBtn.disabled = false;
     setStatus("摄像头开启失败");
-    els.result.textContent = `无法访问摄像头：${error.message || "请检查浏览器权限"}`;
+    console.error("Camera request failed.", error);
+    els.result.textContent = getCameraErrorMessage(error);
   }
+}
+
+async function requestCameraStream() {
+  const preferredConstraints = {
+    video: {
+      width: { ideal: 960 },
+      height: { ideal: 720 },
+      facingMode: "user",
+    },
+    audio: false,
+  };
+
+  try {
+    return await navigator.mediaDevices.getUserMedia(preferredConstraints);
+  } catch (error) {
+    if (error.name !== "OverconstrainedError" && error.name !== "NotFoundError") {
+      throw error;
+    }
+
+    return navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: false,
+    });
+  }
+}
+
+function getCameraErrorMessage(error) {
+  const fallback = error.message || "请检查浏览器摄像头权限。";
+  const messages = {
+    NotAllowedError: "摄像头权限被拒绝了。请在浏览器地址栏左侧重新允许摄像头权限，然后再点开启摄像头。",
+    NotFoundError: "没有找到可用摄像头。请确认摄像头已连接，并且没有被系统禁用。",
+    NotReadableError: "摄像头正在被其他应用占用。请关闭会议软件、相机应用或其他网页后再试。",
+    SecurityError: "当前页面不允许访问摄像头。请用 http://localhost 打开项目，或使用 HTTPS。",
+    OverconstrainedError: "浏览器找不到符合要求的摄像头参数，已尝试降级；如果仍失败，请检查摄像头设备。",
+  };
+
+  return `无法访问摄像头：${messages[error.name] || fallback}`;
 }
 
 async function loadPoseDetector() {
