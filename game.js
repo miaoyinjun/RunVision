@@ -10,6 +10,8 @@ const els = {
   startCameraBtn: document.querySelector("#startCameraBtn"),
   startRaceBtn: document.querySelector("#startRaceBtn"),
   finishLine: document.querySelector(".finish-line"),
+  finishBurst: document.querySelector("#finishBurst"),
+  finishText: document.querySelector("#finishText"),
   playerRunner: document.querySelector("#playerRunner"),
   aiRunner: document.querySelector("#aiRunner"),
   timeLeft: document.querySelector("#timeLeft"),
@@ -55,6 +57,7 @@ resetRace();
 
 async function startCamera() {
   els.startCameraBtn.disabled = true;
+  hideFinishBurst();
   setStatus("正在请求摄像头...");
 
   try {
@@ -113,6 +116,7 @@ function startRace() {
   if (!state.cameraReady) return;
 
   resetRace();
+  hideFinishBurst();
   state.raceActive = true;
   state.raceStart = performance.now();
   state.lastFrame = state.raceStart;
@@ -132,6 +136,7 @@ function resetRace() {
   state.lastKneeSignal = 0;
   state.lastStepAt = 0;
   els.timeLeft.textContent = GAME_SECONDS.toFixed(1);
+  hideFinishBurst();
   renderScore();
   renderRunners();
   els.playerRunner.classList.add("paused");
@@ -244,10 +249,40 @@ function finishRace() {
   els.aiRunner.classList.add("paused");
 
   const won = state.playerDistance >= state.aiDistance;
+  showFinishBurst(won);
   els.result.className = `result ${won ? "win" : "lose"}`;
   els.result.textContent = won
     ? `Win！你跑了 ${state.playerDistance.toFixed(1)} 米，电脑跑了 ${state.aiDistance.toFixed(1)} 米。`
     : `Lose！你跑了 ${state.playerDistance.toFixed(1)} 米，电脑跑了 ${state.aiDistance.toFixed(1)} 米。`;
+  closeCameraAfterRace();
+}
+
+function showFinishBurst(won) {
+  els.finishText.textContent = won ? "WIN" : "LOSE";
+  els.finishBurst.className = `finish-burst show ${won ? "win" : "lose"}`;
+  els.finishBurst.setAttribute("aria-hidden", "false");
+}
+
+function hideFinishBurst() {
+  els.finishBurst.className = "finish-burst";
+  els.finishBurst.setAttribute("aria-hidden", "true");
+}
+
+function closeCameraAfterRace() {
+  const stream = els.video.srcObject;
+
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+  }
+
+  els.video.srcObject = null;
+  overlayContext.clearRect(0, 0, els.overlay.width, els.overlay.height);
+  state.cameraReady = false;
+  state.previousMotionFrame = null;
+  state.fallbackMotion = 0;
+  els.startCameraBtn.disabled = false;
+  els.startRaceBtn.disabled = true;
+  setStatus("比赛结束，摄像头已关闭");
 }
 
 function renderScore() {
