@@ -7,8 +7,7 @@ const els = {
   video: document.querySelector("#camera"),
   overlay: document.querySelector("#overlay"),
   cameraStatus: document.querySelector("#cameraStatus"),
-  startCameraBtn: document.querySelector("#startCameraBtn"),
-  startRaceBtn: document.querySelector("#startRaceBtn"),
+  gameActionBtn: document.querySelector("#gameActionBtn"),
   finishLine: document.querySelector(".finish-line"),
   countdownBurst: document.querySelector("#countdownBurst"),
   finishBurst: document.querySelector("#finishBurst"),
@@ -29,6 +28,7 @@ const state = {
   cameraReady: false,
   raceActive: false,
   countdownActive: false,
+  actionMode: "camera",
   raceStart: 0,
   lastFrame: 0,
   playerDistance: 0,
@@ -48,8 +48,7 @@ motionCanvas.width = 80;
 motionCanvas.height = 60;
 const motionContext = motionCanvas.getContext("2d", { willReadFrequently: true });
 
-els.startCameraBtn.addEventListener("click", startCamera);
-els.startRaceBtn.addEventListener("click", startRace);
+els.gameActionBtn.addEventListener("click", handleGameAction);
 els.difficulty.addEventListener("input", () => {
   state.aiSpeed = Number(els.difficulty.value);
   els.difficultyValue.textContent = `${state.aiSpeed.toFixed(1)} m/s`;
@@ -57,8 +56,20 @@ els.difficulty.addEventListener("input", () => {
 
 resetRace();
 
+function handleGameAction() {
+  if (state.actionMode === "camera") {
+    startCamera();
+    return;
+  }
+
+  if (state.actionMode === "race") {
+    startRace();
+  }
+}
+
 async function startCamera() {
-  els.startCameraBtn.disabled = true;
+  els.gameActionBtn.disabled = true;
+  setActionButton("准备中...", true);
   resetRace();
   els.result.className = "result";
   els.result.textContent = "站到镜头前，开启摄像头后原地跑。步伐越明显，游戏里的人跑得越快。";
@@ -75,12 +86,12 @@ async function startCamera() {
     await els.video.play();
     resizeOverlay();
     state.cameraReady = true;
-    els.startRaceBtn.disabled = false;
+    setActionButton("开始比赛", false, "race");
     setStatus("摄像头已开启，正在加载姿态识别...");
     loadPoseDetector();
     requestAnimationFrame(tick);
   } catch (error) {
-    els.startCameraBtn.disabled = false;
+    setActionButton("开启摄像头", false, "camera");
     setStatus("摄像头开启失败");
     console.error("Camera request failed.", error);
     els.result.textContent = getCameraErrorMessage(error);
@@ -157,7 +168,7 @@ function startRace() {
   resetRace();
   hideFinishBurst();
   runCountdown();
-  els.startRaceBtn.disabled = true;
+  setActionButton("倒计时...", true, "countdown");
   els.result.className = "result";
   els.result.textContent = "准备！倒计时结束后开始原地快跑。";
 }
@@ -235,6 +246,7 @@ function beginRace() {
   state.raceActive = true;
   state.raceStart = performance.now();
   state.lastFrame = state.raceStart;
+  setActionButton("比赛中...", true, "racing");
   els.result.textContent = "比赛开始！面对摄像头原地快跑，抬膝和摆臂都会提高速度。";
   els.playerRunner.classList.remove("paused");
   els.aiRunner.classList.remove("paused");
@@ -326,7 +338,6 @@ function estimateFallbackMotion() {
 
 function finishRace() {
   state.raceActive = false;
-  els.startRaceBtn.disabled = false;
   els.playerRunner.classList.add("paused");
   els.aiRunner.classList.add("paused");
 
@@ -362,9 +373,14 @@ function closeCameraAfterRace() {
   state.cameraReady = false;
   state.previousMotionFrame = null;
   state.fallbackMotion = 0;
-  els.startCameraBtn.disabled = false;
-  els.startRaceBtn.disabled = true;
+  setActionButton("重新开启摄像头", false, "camera");
   setStatus("比赛结束，摄像头已关闭");
+}
+
+function setActionButton(label, disabled, mode = state.actionMode) {
+  state.actionMode = mode;
+  els.gameActionBtn.textContent = label;
+  els.gameActionBtn.disabled = disabled;
 }
 
 function renderScore() {
