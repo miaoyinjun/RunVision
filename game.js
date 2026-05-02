@@ -59,7 +59,9 @@ resetRace();
 
 async function startCamera() {
   els.startCameraBtn.disabled = true;
-  hideFinishBurst();
+  resetRace();
+  els.result.className = "result";
+  els.result.textContent = "站到镜头前，开启摄像头后原地跑。步伐越明显，游戏里的人跑得越快。";
   setStatus("正在请求摄像头...");
 
   try {
