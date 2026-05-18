@@ -3,6 +3,78 @@ const TRACK_METERS = 100;
 const PLAYER_MAX_SPEED = 10.5;
 const STEP_WINDOW_MS = 1800;
 
+const LANGUAGE = (document.documentElement.lang || "zh-CN").toLowerCase().startsWith("en") ? "en" : "zh";
+const COPY = {
+  zh: {
+    actionPreparing: "准备中...",
+    actionEnableCamera: "开启摄像头",
+    actionStartRace: "开始比赛",
+    actionCountdown: "倒计时...",
+    actionRacing: "比赛中...",
+    actionRestartCamera: "重新开启摄像头",
+    statusRequestingCamera: "正在请求摄像头...",
+    statusCameraOnLoadingPose: "摄像头已开启，正在加载姿态识别...",
+    statusCameraFail: "摄像头开启失败",
+    statusPoseReady: "姿态识别就绪",
+    statusPoseFallback: "姿态模型未加载，使用运动检测",
+    statusRaceEndCameraClosed: "比赛结束，摄像头已关闭",
+    resultIntro: "站到镜头前，开启摄像头后原地跑。步伐越明显，游戏里的人跑得越快。",
+    resultCountdown: "准备！倒计时结束后开始原地快跑。",
+    resultRacing: "比赛开始！面对摄像头原地快跑，抬膝和摆臂都会提高速度。",
+    finishWin: (playerMeters, aiMeters) => `Win！你跑了 ${playerMeters} 米，电脑跑了 ${aiMeters} 米。`,
+    finishLose: (playerMeters, aiMeters) => `Lose！你跑了 ${playerMeters} 米，电脑跑了 ${aiMeters} 米。`,
+    errorNoCameraApi:
+      "当前页面不能调用摄像头。请用 HTTPS 打开页面；本地开发请用 http://localhost 打开，不要直接双击 index.html。",
+    cameraErrorFallback: "请检查浏览器摄像头权限。",
+    cameraErrorPrefix: "无法访问摄像头：",
+    cameraErrors: {
+      NotAllowedError:
+        "摄像头权限被拒绝了。请在浏览器地址栏左侧重新允许摄像头权限，然后再点开启摄像头。",
+      NotFoundError: "没有找到可用摄像头。请确认摄像头已连接，并且没有被系统禁用。",
+      NotReadableError: "摄像头正在被其他应用占用。请关闭会议软件、相机应用或其他网页后再试。",
+      SecurityError: "当前页面不允许访问摄像头。请用 HTTPS 打开页面，或本地用 http://localhost。",
+      OverconstrainedError: "浏览器找不到符合要求的摄像头参数，已尝试降级；如果仍失败，请检查摄像头设备。",
+    },
+  },
+  en: {
+    actionPreparing: "Preparing...",
+    actionEnableCamera: "Enable camera",
+    actionStartRace: "Start race",
+    actionCountdown: "Countdown...",
+    actionRacing: "Racing...",
+    actionRestartCamera: "Enable camera again",
+    statusRequestingCamera: "Requesting camera access...",
+    statusCameraOnLoadingPose: "Camera is on. Loading pose tracking...",
+    statusCameraFail: "Failed to enable camera",
+    statusPoseReady: "Pose tracking ready",
+    statusPoseFallback: "Pose model unavailable. Using motion fallback",
+    statusRaceEndCameraClosed: "Race finished. Camera closed",
+    resultIntro: "Stand in front of the camera. Enable it and run in place. Clearer steps make you faster in-game.",
+    resultCountdown: "Ready! Start running in place after the countdown.",
+    resultRacing: "Go! Run in place. Higher knees and stronger arm swings can boost your speed.",
+    finishWin: (playerMeters, aiMeters) => `You win! You ran ${playerMeters} m. AI ran ${aiMeters} m.`,
+    finishLose: (playerMeters, aiMeters) => `You lose! You ran ${playerMeters} m. AI ran ${aiMeters} m.`,
+    errorNoCameraApi:
+      "Camera API is unavailable. Open this page over HTTPS; for local dev use http://localhost. Do not open the HTML file directly.",
+    cameraErrorFallback: "Please check your browser camera permission.",
+    cameraErrorPrefix: "Camera error: ",
+    cameraErrors: {
+      NotAllowedError:
+        "Camera permission was denied. Allow it in the browser site settings, then try again.",
+      NotFoundError: "No camera device found. Make sure a camera is connected and enabled.",
+      NotReadableError: "The camera is in use by another app or tab. Close other apps and try again.",
+      SecurityError: "Camera access is blocked on this page. Use HTTPS or http://localhost.",
+      OverconstrainedError:
+        "The camera constraints could not be satisfied. The app has tried to fall back; if it still fails, check your camera.",
+    },
+  },
+};
+
+function t(key, ...args) {
+  const entry = COPY[LANGUAGE]?.[key] ?? COPY.zh[key];
+  return typeof entry === "function" ? entry(...args) : entry;
+}
+
 const els = {
   video: document.querySelector("#camera"),
   overlay: document.querySelector("#overlay"),
@@ -69,15 +141,15 @@ function handleGameAction() {
 
 async function startCamera() {
   els.gameActionBtn.disabled = true;
-  setActionButton("准备中...", true);
+  setActionButton(t("actionPreparing"), true);
   resetRace();
   els.result.className = "result";
-  els.result.textContent = "站到镜头前，开启摄像头后原地跑。步伐越明显，游戏里的人跑得越快。";
-  setStatus("正在请求摄像头...");
+  els.result.textContent = t("resultIntro");
+  setStatus(t("statusRequestingCamera"));
 
   try {
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new Error("当前页面不能调用摄像头，请用 http://localhost 打开，不要直接双击 index.html 或使用局域网 IP。");
+      throw new Error(t("errorNoCameraApi"));
     }
 
     const stream = await requestCameraStream();
@@ -86,13 +158,13 @@ async function startCamera() {
     await els.video.play();
     resizeOverlay();
     state.cameraReady = true;
-    setActionButton("开始比赛", false, "race");
-    setStatus("摄像头已开启，正在加载姿态识别...");
+    setActionButton(t("actionStartRace"), false, "race");
+    setStatus(t("statusCameraOnLoadingPose"));
     loadPoseDetector();
     requestAnimationFrame(tick);
   } catch (error) {
-    setActionButton("开启摄像头", false, "camera");
-    setStatus("摄像头开启失败");
+    setActionButton(t("actionEnableCamera"), false, "camera");
+    setStatus(t("statusCameraFail"));
     console.error("Camera request failed.", error);
     els.result.textContent = getCameraErrorMessage(error);
   }
@@ -123,16 +195,9 @@ async function requestCameraStream() {
 }
 
 function getCameraErrorMessage(error) {
-  const fallback = error.message || "请检查浏览器摄像头权限。";
-  const messages = {
-    NotAllowedError: "摄像头权限被拒绝了。请在浏览器地址栏左侧重新允许摄像头权限，然后再点开启摄像头。",
-    NotFoundError: "没有找到可用摄像头。请确认摄像头已连接，并且没有被系统禁用。",
-    NotReadableError: "摄像头正在被其他应用占用。请关闭会议软件、相机应用或其他网页后再试。",
-    SecurityError: "当前页面不允许访问摄像头。请用 http://localhost 打开项目，或使用 HTTPS。",
-    OverconstrainedError: "浏览器找不到符合要求的摄像头参数，已尝试降级；如果仍失败，请检查摄像头设备。",
-  };
-
-  return `无法访问摄像头：${messages[error.name] || fallback}`;
+  const fallback = error.message || t("cameraErrorFallback");
+  const messages = COPY[LANGUAGE]?.cameraErrors ?? COPY.zh.cameraErrors;
+  return `${t("cameraErrorPrefix")}${messages[error.name] || fallback}`;
 }
 
 async function loadPoseDetector() {
@@ -155,9 +220,9 @@ async function loadPoseDetector() {
       minTrackingConfidence: 0.45,
     });
 
-    setStatus("姿态识别就绪");
+    setStatus(t("statusPoseReady"));
   } catch (error) {
-    setStatus("姿态模型未加载，使用运动检测");
+    setStatus(t("statusPoseFallback"));
     console.warn("Pose detector unavailable, fallback motion detection is active.", error);
   }
 }
@@ -168,9 +233,9 @@ function startRace() {
   resetRace();
   hideFinishBurst();
   runCountdown();
-  setActionButton("倒计时...", true, "countdown");
+  setActionButton(t("actionCountdown"), true, "countdown");
   els.result.className = "result";
-  els.result.textContent = "准备！倒计时结束后开始原地快跑。";
+  els.result.textContent = t("resultCountdown");
 }
 
 function resetRace() {
@@ -246,8 +311,8 @@ function beginRace() {
   state.raceActive = true;
   state.raceStart = performance.now();
   state.lastFrame = state.raceStart;
-  setActionButton("比赛中...", true, "racing");
-  els.result.textContent = "比赛开始！面对摄像头原地快跑，抬膝和摆臂都会提高速度。";
+  setActionButton(t("actionRacing"), true, "racing");
+  els.result.textContent = t("resultRacing");
   els.playerRunner.classList.remove("paused");
   els.aiRunner.classList.remove("paused");
 }
@@ -344,9 +409,9 @@ function finishRace() {
   const won = state.playerDistance >= state.aiDistance;
   showFinishBurst(won);
   els.result.className = `result ${won ? "win" : "lose"}`;
-  els.result.textContent = won
-    ? `Win！你跑了 ${state.playerDistance.toFixed(1)} 米，电脑跑了 ${state.aiDistance.toFixed(1)} 米。`
-    : `Lose！你跑了 ${state.playerDistance.toFixed(1)} 米，电脑跑了 ${state.aiDistance.toFixed(1)} 米。`;
+  const playerMeters = state.playerDistance.toFixed(1);
+  const aiMeters = state.aiDistance.toFixed(1);
+  els.result.textContent = won ? t("finishWin", playerMeters, aiMeters) : t("finishLose", playerMeters, aiMeters);
   closeCameraAfterRace();
 }
 
@@ -373,8 +438,8 @@ function closeCameraAfterRace() {
   state.cameraReady = false;
   state.previousMotionFrame = null;
   state.fallbackMotion = 0;
-  setActionButton("重新开启摄像头", false, "camera");
-  setStatus("比赛结束，摄像头已关闭");
+  setActionButton(t("actionRestartCamera"), false, "camera");
+  setStatus(t("statusRaceEndCameraClosed"));
 }
 
 function setActionButton(label, disabled, mode = state.actionMode) {

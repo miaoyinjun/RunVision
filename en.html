@@ -1,51 +1,51 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>极速开跑 - 摄像头原地跑步识别对战小游戏 | 免费在线玩</title>
+    <title>Sprint Vision (极速开跑) - Camera Running Game | Play Free Online</title>
     <meta
       name="description"
-      content="极速开跑是一款基于浏览器摄像头与 MediaPipe 姿态识别的原地跑步小游戏。站在镜头前原地跑，游戏会根据腿部关键点运动频率换算速度，与电脑角色竞速，免费在线游玩。"
+      content="Sprint Vision (极速开跑) is a free browser game powered by your camera and MediaPipe pose tracking. Run in place to boost your speed and race against the AI."
     />
-    <link rel="canonical" href="https://run.withmiao.com/" />
+    <link rel="canonical" href="https://run.withmiao.com/en.html" />
     <link rel="alternate" href="https://run.withmiao.com/" hreflang="zh-CN" />
     <link rel="alternate" href="https://run.withmiao.com/en.html" hreflang="en" />
     <link rel="alternate" href="https://run.withmiao.com/" hreflang="x-default" />
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta name="theme-color" content="#0b1220" />
 
-    <meta property="og:title" content="极速开跑 - 摄像头原地跑步识别对战小游戏" />
+    <meta property="og:title" content="Sprint Vision (极速开跑) - Camera Running Game" />
     <meta
       property="og:description"
-      content="站在镜头前原地跑，游戏用姿态识别换算速度，和电脑角色竞速。免费在线游玩。"
+      content="Run in place in front of your camera. Pose tracking turns your steps into speed. Race the AI for free."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://run.withmiao.com/" />
-    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:url" content="https://run.withmiao.com/en.html" />
+    <meta property="og:locale" content="en_US" />
 
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="极速开跑 - 摄像头原地跑步识别对战小游戏" />
+    <meta name="twitter:title" content="Sprint Vision (极速开跑) - Camera Running Game" />
     <meta
       name="twitter:description"
-      content="站在镜头前原地跑，姿态识别换算速度，与电脑竞速。免费在线游玩。"
+      content="Run in place in front of your camera. Pose tracking turns your steps into speed. Race the AI for free."
     />
 
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "VideoGame",
-        "name": "极速开跑",
-        "description": "基于浏览器摄像头与 MediaPipe 姿态识别的原地跑步小游戏。通过腿部关键点运动频率换算玩家速度，与电脑角色进行赛跑。",
-        "url": "https://run.withmiao.com/",
-        "inLanguage": "zh-CN",
+        "name": "Sprint Vision (极速开跑)",
+        "description": "A free browser game powered by your camera and MediaPipe pose tracking. Run in place to boost your speed and race against the AI.",
+        "url": "https://run.withmiao.com/en.html",
+        "inLanguage": "en",
         "applicationCategory": "GameApplication",
         "operatingSystem": "Web",
         "isAccessibleForFree": true,
         "offers": {
           "@type": "Offer",
           "price": "0",
-          "priceCurrency": "CNY",
+          "priceCurrency": "USD",
           "availability": "https://schema.org/InStock"
         }
       }
@@ -63,29 +63,29 @@
   </head>
   <body>
     <main class="arena">
-      <section class="race-panel" aria-label="跑步比赛">
+      <section class="race-panel" aria-label="Running race">
         <div class="track-header">
           <div>
             <p class="kicker">Camera Sprint Duel</p>
-            <h1>极速开跑</h1>
+            <h1>Sprint Vision</h1>
           </div>
           <div class="header-tools">
-            <a class="lang-switch" href="/en.html" lang="en" hreflang="en" aria-label="切换到英文页面">EN</a>
+            <a class="lang-switch" href="/" lang="zh-CN" hreflang="zh-CN" aria-label="Switch to Chinese page">中文</a>
             <div class="clock" aria-live="polite">
               <span id="timeLeft">30.0</span>
-              <small>秒</small>
+              <small>sec</small>
             </div>
           </div>
         </div>
 
-        <div class="stadium" aria-label="赛道">
+        <div class="stadium" aria-label="Track">
           <div class="finish-line" aria-hidden="true"></div>
           <div class="countdown-burst" id="countdownBurst" aria-hidden="true">3</div>
           <div class="finish-burst" id="finishBurst" aria-hidden="true">
             <span id="finishText">WIN</span>
           </div>
           <div class="lane lane-ai">
-            <div class="lane-label">电脑</div>
+            <div class="lane-label">AI</div>
             <div class="runner ai-runner" id="aiRunner" aria-hidden="true">
               <span class="head"></span>
               <span class="body"></span>
@@ -96,7 +96,7 @@
             </div>
           </div>
           <div class="lane lane-player">
-            <div class="lane-label">你</div>
+            <div class="lane-label">You</div>
             <div class="runner player-runner" id="playerRunner" aria-hidden="true">
               <span class="head"></span>
               <span class="body"></span>
@@ -108,39 +108,39 @@
           </div>
         </div>
 
-        <div class="scoreboard" aria-label="比赛数据">
+        <div class="scoreboard" aria-label="Race stats">
           <div>
             <span id="playerMeters">0</span>
-            <small>玩家米数</small>
+            <small>Player meters</small>
           </div>
           <div>
             <span id="cadence">0</span>
-            <small>步频</small>
+            <small>Cadence</small>
           </div>
           <div>
             <span id="aiMeters">0</span>
-            <small>电脑米数</small>
+            <small>AI meters</small>
           </div>
         </div>
       </section>
 
-      <aside class="control-panel" aria-label="摄像头控制">
+      <aside class="control-panel" aria-label="Camera controls">
         <div class="camera-shell">
           <video id="camera" playsinline muted></video>
           <canvas id="overlay"></canvas>
-          <div class="camera-status" id="cameraStatus">等待摄像头</div>
+          <div class="camera-status" id="cameraStatus">Waiting for camera</div>
         </div>
 
         <div class="action-row">
-          <button class="primary" id="gameActionBtn" type="button">开启摄像头</button>
+          <button class="primary" id="gameActionBtn" type="button">Enable camera</button>
         </div>
 
         <div class="result" id="result" role="status" aria-live="polite">
-          站到镜头前，开启摄像头后原地跑。步伐越明显，游戏里的人跑得越快。
+          Stand in front of the camera. Enable the camera and run in place. Clearer steps make you faster in-game.
         </div>
 
         <div class="tuning">
-          <label for="difficulty">电脑速度</label>
+          <label for="difficulty">AI speed</label>
           <input id="difficulty" type="range" min="6" max="13" step="0.5" value="9" />
           <span id="difficultyValue">9.0 m/s</span>
         </div>

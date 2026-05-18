@@ -63,6 +63,40 @@ input {
   margin-bottom: 18px;
 }
 
+.header-tools {
+  display: flex;
+  align-items: start;
+  gap: 12px;
+}
+
+.lang-switch {
+  display: inline-grid;
+  place-items: center;
+  min-width: 52px;
+  height: 52px;
+  padding: 0 12px;
+  border: 3px solid var(--ink);
+  background: var(--white);
+  color: var(--ink);
+  text-decoration: none;
+  font-family: Rajdhani, sans-serif;
+  font-weight: 700;
+  box-shadow: 4px 4px 0 var(--ink);
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.lang-switch:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.lang-switch:focus-visible {
+  outline: 3px solid var(--electric);
+  outline-offset: 3px;
+}
+
 .kicker {
   margin: 0 0 4px;
   font-family: Rajdhani, sans-serif;
@@ -566,6 +600,15 @@ input[type="range"] {
   .scoreboard {
     grid-template-columns: 1fr;
     flex-direction: column;
+  }
+
+  .header-tools {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .lang-switch {
+    width: 100%;
   }
 
   .clock {
